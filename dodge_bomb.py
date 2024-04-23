@@ -17,7 +17,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 cry_img = pg.image.load("fig/8.jpg")
 
 def check_bound(obj_rct:pg.Rect) -> tuple[bool, bool]:
-    """"
+    """
     こうかとんrect.または、爆弾rectの画面外判定の関数
     引数：こうかとんrect、または、爆弾rect
     戻り値：横方向判定結果、縦方向判定結果 (True:画面内,False:画面外)
