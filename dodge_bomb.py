@@ -14,6 +14,20 @@ idou = {
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
+def check_bound(obj_rct:pg.Rect) -> tuple[bool, bool]:
+    """"
+    こうかとんrect.または、爆弾rectの画面外判定の関数
+    引数：こうかとんrect、または、爆弾rect
+    戻り値：横方向判定結果、縦方向判定結果 (True:画面内,False:画面外)
+    """
+    yoko, tate = True, True
+    if obj_rct.left < 0 or WIDTH < obj_rct.right:
+        yoko = False
+    if obj_rct.top < 0 or HEIGHT < obj_rct.bottom:
+        tate = False
+    return yoko, tate
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -21,6 +35,7 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 900, 400
+    # ここから爆弾
     bd_img = pg.Surface((20, 20))
     bg_img.set_colorkey((0, 0, 0))
     pg.draw.circle(bd_img, (255, 0, 0), (10, 10), 10)
@@ -36,16 +51,25 @@ def main():
                 return
         screen.blit(bg_img, [0, 0])  # 画面を表示する
 
-        key_lst = pg.key.get_pressed()  # 移動量を決める
+        # こうかとんの移動と表示
+        key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         for k, v in idou.items():
             if key_lst[k]:
                 sum_mv[0] += v[0]
                 sum_mv[1] += v[1]
-        kk_rct.move_ip(sum_mv)
+            kk_rct.move_ip(sum_mv)
+            if check_bound(kk_rct) != (True, True):
+                kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
+        # 爆弾の移動と表示
         bd_rct.move_ip(vx, vy)
         screen.blit(bd_img, bd_rct)
+        yoko, tate = check_bound(bd_rct)
+        if not yoko:
+            vx *= -1
+        if not tate:
+            vy *= -1
         pg.display.update()
         tmr += 1
         clock.tick(50)
